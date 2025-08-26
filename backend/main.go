@@ -48,9 +48,11 @@ var models = map[string]string{
 /////////
 
 func enableCORS(w http.ResponseWriter) {
-	w.Header().Set("Access-Control-Allow-Origin", "*") //CHANGE THIS IN PRODUCTION
+	w.Header().Set("Access-Control-Allow-Origin", "*.meng.zip") //CHANGE THIS IN PRODUCTION
 	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
 	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+
+	fmt.Printf("CORS headers set: %v", w.Header())
 }
 
 // Set the default system prompt here
@@ -158,9 +160,12 @@ func modelsHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func chatHandler(w http.ResponseWriter, r *http.Request) {
-	enableCORS(w)
+	fmt.Printf("Received %s request from origin: %s", r.Method, r.Header.Get("Origin"))
+	//enableCORS(w)
 
 	if r.Method == "OPTIONS" {
+		fmt.Printf("Responding to OPTIONS preflight")
+		w.WriteHeader(http.StatusOK)
 		return
 	}
 

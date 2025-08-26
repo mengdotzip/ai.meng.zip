@@ -105,7 +105,7 @@ async function streamToModel(model, message, containerId) {
     activeControllers.set(containerId, controller);
     
     try {
-        const response = await fetch('http://ai.meng.zip:5000/v1/chat/completions', {
+        const response = await fetch('https://api.meng.zip/v1/chat/completions', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             signal: controller.signal,
@@ -242,7 +242,7 @@ async function sendIndividualMessage() {
     activeControllers.set(streamId, controller);
     
     try {
-        const response = await fetch('https://ai.meng.zip:5000/v1/chat/completions', {
+        const response = await fetch('https://api.meng.zip/v1/chat/completions', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             signal: controller.signal,
