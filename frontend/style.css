@@ -8,6 +8,11 @@ body {
     overflow-x: hidden;
 }
 
+.hidden {
+    display: none !important;
+}
+
+
 /* Background animation */
 body::before {
     content: '';

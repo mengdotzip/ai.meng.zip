@@ -22,7 +22,7 @@ async function compareModels() {
         return;
     }
     
-    document.getElementById('comparisonResults').style.display = 'block';
+    document.getElementById('comparisonResults').classList.remove('hidden');
     const responsesContainer = document.getElementById('modelResponses');
     responsesContainer.innerHTML = '';
     
@@ -51,10 +51,10 @@ function createModelResponseContainer(model) {
     div.innerHTML = `
         <div class="response-header">
             <span class="model-name">${modelInfo[model].name}</span>
-            <button class="chat-button" onclick="startIndividualChat('${model}')">
+            <button class="chat-button" data-model="${model}">
                 Continue Chat
             </button>
-             <button class="stop-button" onclick="stopGeneration('response-${model}')" style="display: none;">
+             <button class="stop-button hidden" data-container="response-${model}">
                 Stop
             </button>
         </div>
@@ -64,6 +64,18 @@ function createModelResponseContainer(model) {
             <div class="typing-indicator">Working...</div>
         </div>
     `;
+
+    const chatButton = div.querySelector('.chat-button');
+    const stopButton = div.querySelector('.stop-button');
+
+    chatButton.addEventListener('click', function() {
+        startIndividualChat(model);
+    });
+    
+    stopButton.addEventListener('click', function() {
+        stopGeneration(`response-${model}`);
+    });
+
     return div;
 }
 
@@ -85,15 +97,15 @@ async function streamToModel(model, message, containerId) {
     const chatButton = modelResponse.querySelector('.chat-button');
     
     // Show stop button, hide chat button while streaming
-    stopButton.style.display = 'inline-block';
-    chatButton.style.display = 'none';
+    stopButton.classList.remove('hidden');
+    chatButton.classList.add('hidden');
     modelResponse.classList.add('streaming');
 
     const controller = new AbortController();
     activeControllers.set(containerId, controller);
     
     try {
-        const response = await fetch('http://localhost:5000/v1/chat/completions', {
+        const response = await fetch('http://ai.meng.zip:5000/v1/chat/completions', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             signal: controller.signal,
@@ -162,13 +174,13 @@ async function streamToModel(model, message, containerId) {
         if (error.name === 'AbortError') {
             container.innerHTML = container.innerHTML + '...Generation stopped';
         }else{
-            container.innerHTML = `<span style="color: red;">Error: ${error.message}</span>`;
+            container.innerHTML = `Error: ${error.message}`;
         }
     } finally {
         activeControllers.delete(containerId);
         modelResponse.classList.remove('streaming');
-        stopButton.style.display = 'none';
-        chatButton.style.display = 'inline-block';
+        stopButton.classList.add('hidden');
+        chatButton.classList.remove('hidden');
     }
 }
 
@@ -176,9 +188,9 @@ function startIndividualChat(model) {
     currentModel = model;
     
     // Hide comparison, show individual chat
-    document.getElementById('modelSelection').style.display = 'none';
-    document.getElementById('comparisonResults').style.display = 'none';
-    document.getElementById('individualChat').style.display = 'block';
+    document.getElementById('modelSelection').classList.add('hidden');
+    document.getElementById('comparisonResults').classList.add('hidden');
+    document.getElementById('individualChat').classList.remove('hidden');
     
     // Set chat header
     document.getElementById('currentModelName').textContent = `Chat with ${modelInfo[model].name}`;
@@ -230,7 +242,7 @@ async function sendIndividualMessage() {
     activeControllers.set(streamId, controller);
     
     try {
-        const response = await fetch('http://localhost:5000/v1/chat/completions', {
+        const response = await fetch('https://ai.meng.zip:5000/v1/chat/completions', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             signal: controller.signal,
@@ -299,9 +311,9 @@ async function sendIndividualMessage() {
 }
 
 function backToComparison() {
-    document.getElementById('modelSelection').style.display = 'block';
-    document.getElementById('comparisonResults').style.display = 'block';
-    document.getElementById('individualChat').style.display = 'none';
+    document.getElementById('modelSelection').classList.remove('hidden');
+    document.getElementById('comparisonResults').classList.remove('hidden');
+    document.getElementById('individualChat').classList.add('hidden');
     currentModel = null;
 }
 
@@ -323,8 +335,13 @@ function formatMessage(content) {
 }
 
 
-// Enter key support
 document.addEventListener('DOMContentLoaded', function() {
+
+    document.getElementById('askQuestionBtn').addEventListener('click', compareModels);
+    document.getElementById('backToComparisonBtn').addEventListener('click', backToComparison);
+    document.getElementById('sendMessageBtn').addEventListener('click', sendIndividualMessage);
+    
+    // Enter key support
     document.getElementById('initialMessage').addEventListener('keypress', function(e) {
         if (e.key === 'Enter') compareModels();
     });
@@ -333,3 +350,4 @@ document.addEventListener('DOMContentLoaded', function() {
         if (e.key === 'Enter') sendIndividualMessage();
     });
 });
+

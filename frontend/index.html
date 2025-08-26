@@ -3,14 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>ai.meng.zip</title>
     <link rel="stylesheet" href="style.css">
     <!-- Marked JS -->
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/marked/lib/marked.umd.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/marked-highlight/lib/index.umd.js"></script>
+    <script src="marked-js/marked.min.js"></script>
+    <script src="marked-js/marked.umd.js"></script>
+    <script src="marked-js/index.umd.js"></script>
     <link rel="stylesheet" href="custom-panda-syntax-dark.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js"></script>
+    <script src="marked-js/highlight.min.js"></script>
 
 </head>
 <body>
@@ -39,29 +40,29 @@
 
         <div class="initial-input">
             <input type="text" id="initialMessage" placeholder="Ask a question to the model(s)..." />
-            <button onclick="compareModels()">Ask Question</button>
+            <button id="askQuestionBtn">Ask Question</button>
         </div>
 
     </div>
 
      <!-- Comparison Results -->
-    <div id="comparisonResults" class="comparison-results" style="display: none;">
+    <div id="comparisonResults" class="comparison-results hidden">
         <h3>Model(s) Response(s):</h3>
         <div id="modelResponses" class="model-responses"></div>
     </div>
 
     <!-- Individual Chat Interface -->
-    <div id="individualChat" class="individual-chat" style="display: none;">
+    <div id="individualChat" class="individual-chat hidden">
         <div class="chat-header">
             <h3 id="currentModelName">Chat with Model</h3>
-            <button onclick="backToComparison()" class="back-btn">← Back to Models</button>
+            <button id="backToComparisonBtn" class="back-btn">← Back to Models</button>  
         </div>
         
         <div id="chatMessages" class="chat-messages"></div>
         
         <div class="chat-input">
             <input type="text" id="chatMessage" placeholder="Continue conversation..." />
-            <button onclick="sendIndividualMessage()">Send</button>
+            <button id="sendMessageBtn">Send</button>
         </div>
     </div>
 
