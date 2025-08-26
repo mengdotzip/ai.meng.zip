@@ -1,0 +1,27 @@
+[Unit]
+Description=MODEL NAME
+After=network.target
+
+[Service]
+Type=simple
+User=username
+Group=username
+WorkingDirectory=/home/username/llama.cpp/build/bin
+ExecStart=/home/username/llama.cpp/build/bin/llama-server \
+    -hf .gguf \
+    --port 8004 \
+    --host 0.0.0.0 \
+    --threads 6 \
+    --batch-size 64 \
+    --ctx-size 8192 \
+    --parallel 4 \
+    --cont-batching \
+    --jinja
+
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
