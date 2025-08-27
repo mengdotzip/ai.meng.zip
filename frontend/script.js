@@ -236,10 +236,19 @@ async function sendIndividualMessage() {
     assistantDiv.innerHTML = '<div class="typing-indicator">Working...</div>';
     messagesContainer.appendChild(thinkingAssistantDiv);
     messagesContainer.appendChild(assistantDiv);
+    const stopButton = document.getElementById('stopMessageBtn');
+    const sendButton = document.getElementById('sendMessageBtn');
 
     const controller = new AbortController();
     const streamId = `individual-${Date.now()}`;
     activeControllers.set(streamId, controller);
+
+    stopButton.addEventListener('click', function() {
+        stopGeneration(streamId);
+    });
+
+    stopButton.classList.remove('hidden');
+    sendButton.classList.add('hidden');
     
     try {
         const response = await fetch('https://api.meng.zip/v1/chat/completions', {
@@ -266,6 +275,10 @@ async function sendIndividualMessage() {
         while (true) {
             const { done, value } = await reader.read();
             if (done) break;
+
+            if (controller.signal.aborted) {
+                break;
+            }
 
             const chunk = decoder.decode(value, { stream: true });
             const lines = chunk.split('\n');
@@ -300,12 +313,14 @@ async function sendIndividualMessage() {
         chatHistory[currentModel].push({ role: 'assistant', content: responseText });
         
     } catch (error) {
-         if (error.name === 'AbortError') {
-            assistantDiv.innerHTML = '<span style="color: orange;">Generation stopped</span>';
-        } else {
-        assistantDiv.innerHTML = `<span style="color: red;">Error: ${error.message}</span>`;
+        if (error.name === 'AbortError') {
+            assistantDiv.innerHTML = assistantDiv.innerHTML + '...Generation stopped';
+        }else{
+            assistantDiv.innerHTML = `Error: ${error.message}`;
         }
     } finally {
+        sendButton.classList.remove('hidden');
+        stopButton.classList.add('hidden');
         activeControllers.delete(streamId);
     }
 }
